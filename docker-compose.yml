@@ -1,0 +1,28 @@
+services:
+  weather-api:
+    build: .
+    image: weather-middleware-api:latest
+    container_name: weather-api
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # Required — read from your local .env (see .env.example).
+      OPENWEATHER_API_KEY: ${OPENWEATHER_API_KEY:?set OPENWEATHER_API_KEY in your .env}
+      OPENWEATHER_BASE_URL: ${OPENWEATHER_BASE_URL:-https://api.openweathermap.org/data/2.5}
+      WEATHER_REFRESH_CRON: ${WEATHER_REFRESH_CRON:-*/30 * * * *}
+      REQUEST_TIMEOUT_MS: ${REQUEST_TIMEOUT_MS:-8000}
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-30}
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-60000}
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "require('http').get('http://localhost:3000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

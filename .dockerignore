@@ -1,0 +1,16 @@
+node_modules
+dist
+.git
+.gitignore
+.env
+.env.*.local
+npm-debug.log*
+*.log
+.DS_Store
+.idea
+.vscode
+*.swp
+README.md
+CLAUDE.md
+*.pdf
+*.zip
