@@ -1,0 +1,37 @@
+# fly.toml — Fly.io deployment config for the weather middleware API.
+# Rename "app" to something globally unique before first deploy:
+#   fly launch --no-deploy   (generates/claims a name)  OR  edit below.
+# Set the secret once:  fly secrets set OPENWEATHER_API_KEY=your_real_key
+
+app = "weather-middleware-api"
+primary_region = "cdg"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  OPENWEATHER_BASE_URL = "https://api.openweathermap.org/data/2.5"
+  WEATHER_REFRESH_CRON = "*/30 * * * *"
+  REQUEST_TIMEOUT_MS = "8000"
+  RATE_LIMIT_MAX = "30"
+  RATE_LIMIT_WINDOW_MS = "60000"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    method = "GET"
+    path = "/health"
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "256mb"
